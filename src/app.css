@@ -1,0 +1,201 @@
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap");
+
+@font-face {
+  font-family: "Play";
+  src: url("/fonts/Play/Play-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Play";
+  src: url("/fonts/Play/Play-Bold.ttf") format("truetype");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme inline {
+  --font-sans: "Play", "Orbitron", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* ShadCN Green Theme */
+  --background: #023312;
+  --foreground: #fafafa;
+
+  --card: #023312;
+  --card-foreground: #fafafa;
+
+  --popover: #023312;
+  --popover-foreground: #fafafa;
+
+  --primary: #fafafa;
+  --primary-foreground: #023312;
+
+  --secondary: #03441a;
+  --secondary-foreground: #fafafa;
+
+  --muted: #03441a;
+  --muted-foreground: #a1a1aa;
+
+  --accent: #03441a;
+  --accent-foreground: #fafafa;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #fafafa;
+
+  --border: #045521;
+  --input: #045521;
+  --ring: #056628;
+
+  --sidebar-background: #023312;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #fafafa;
+  --sidebar-primary-foreground: #023312;
+  --sidebar-accent: #03441a;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: #045521;
+  --sidebar-ring: #056628;
+}
+
+/* Adding base styles and ensuring Tailwind works properly */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background: #000000;
+    color: #ffffff;
+    font-family: "Play", "Orbitron", system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* Grid background animation */
+  .grid-bg {
+    background-image: linear-gradient(rgba(0, 255, 0, 0.15) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 255, 0, 0.15) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: grid-move 25s linear infinite;
+  }
+
+  /* Glow effects */
+  .glow-green {
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.4), 0 0 40px rgba(0, 255, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .glow-green:hover {
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.6), 0 0 60px rgba(0, 255, 0, 0.2);
+  }
+
+  .glow-green-strong {
+    box-shadow: 0 0 40px rgba(0, 255, 0, 0.6), 0 0 80px rgba(0, 255, 0, 0.3);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .glow-green-strong:hover {
+    box-shadow: 0 0 60px rgba(0, 255, 0, 0.8), 0 0 120px rgba(0, 255, 0, 0.4);
+  }
+
+  /* Step animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .step-fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  /* Interactive hover effects */
+  .interactive-card {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(0, 255, 0, 0.2);
+    background: #023312; /* Changed from transparent black */
+    backdrop-filter: blur(10px);
+  }
+
+  .interactive-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: rgba(0, 255, 0, 0.8);
+    box-shadow: 0 20px 40px rgba(0, 255, 0, 0.3);
+    background: rgba(0, 255, 0, 0.05);
+  }
+
+  /* Rising animation for trending icons */
+  .rising-icon {
+    animation: rise 6s ease-in-out infinite;
+  }
+
+  /* Contract address styling */
+  .contract-address {
+    font-family: "Play", monospace;
+    background: rgba(0, 255, 0, 0.1);
+    border: 1px solid rgba(0, 255, 0, 0.3);
+    padding: 12px;
+    border-radius: 8px;
+    word-break: break-all;
+    font-size: 14px;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+}
+
+@keyframes grid-move {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 40px 40px;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+  }
+}
+
+@keyframes rise {
+  0% {
+    transform: translateY(0px);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translateY(-20px);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-40px);
+    opacity: 0.2;
+  }
+}
