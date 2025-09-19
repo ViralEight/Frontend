@@ -18,6 +18,10 @@
     BarChart3
   } from 'lucide-svelte';
   import { API_BASE_URL } from '$lib/config/api.js';
+  import { networkStore } from '$lib/contexts/network.svelte.js';
+  import { NETWORKS } from '$lib/config/networks.js';
+  import TestViral8 from '$lib/components/TestViral8.svelte';
+  import { PUBLIC_SOLANA_CONTRACT_ADDRESS, PUBLIC_GORBAGANA_CONTRACT_ADDRESS } from '$env/static/public';
 
   let email = $state('');
   let isSubmitting = $state(false);
@@ -31,8 +35,45 @@
     { name: 'Facebook', icon: Facebook, color: 'text-blue-600' }
   ];
 
-  const tokens = ['SOL', 'USDC', 'EURC', 'VR8'];
-  const contractAddress = '7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU';
+  // Token configurations for different networks
+  const tokenConfigs = {
+    [NETWORKS.SOLANA.id]: [
+      { symbol: 'SOL', icon: 'solana', color: 'text-green-400' },
+      { symbol: 'USDC', icon: 'dollar', color: 'text-blue-400' },
+      { symbol: 'EURC', icon: 'euro', color: 'text-purple-400' },
+      { symbol: 'VR8', icon: 'coins', color: 'text-green-400' }
+    ],
+    [NETWORKS.GORBAGANA.id]: [
+      { symbol: 'GOR', icon: 'solana', color: 'text-green-400' },
+      { symbol: 'VR8', icon: 'coins', color: 'text-green-400' }
+    ]
+  };
+
+  // Contract addresses for different networks
+  const contractAddresses = {
+    [NETWORKS.SOLANA.id]: PUBLIC_SOLANA_CONTRACT_ADDRESS || 'UNSET',
+    [NETWORKS.GORBAGANA.id]: PUBLIC_GORBAGANA_CONTRACT_ADDRESS || 'UNSET'
+  };
+
+  // Compute values based on current network
+  let computedValues = $derived(() => {
+    const currentNetwork = networkStore.network;
+    if (!currentNetwork) {
+      return {
+        tokens: tokenConfigs[NETWORKS.SOLANA.id],
+        contractAddress: contractAddresses[NETWORKS.SOLANA.id],
+        explorerUrl: NETWORKS.SOLANA.explorerUrl,
+        networkName: NETWORKS.SOLANA.name
+      };
+    }
+    
+    return {
+      tokens: tokenConfigs[currentNetwork.id] || tokenConfigs[NETWORKS.SOLANA.id],
+      contractAddress: contractAddresses[currentNetwork.id] || contractAddresses[NETWORKS.SOLANA.id],
+      explorerUrl: currentNetwork.explorerUrl || NETWORKS.SOLANA.explorerUrl,
+      networkName: currentNetwork.name
+    };
+  });
 
   async function handleWaitlistSubmit() {
     if (!email) return;
@@ -62,11 +103,27 @@
   function copyToClipboard(text) {
     navigator.clipboard.writeText(text);
   }
+
+  function getTokenIcon(token) {
+    switch(token.icon) {
+      case 'solana':
+        return networkStore.network?.id === 'gorbagana' 
+          ? '/gorbagana-logo.png' 
+          : '/icons8-solana-64(1).png';
+      case 'dollar':
+        return '/icons8-dollar-50.png';
+      case 'euro':
+        return '/icons8-euro-50.png';
+      case 'coins':
+      default:
+        return null;
+    }
+  }
 </script>
 
 <svelte:head>
-  <title>Viral8 - The Future of Social Media Predictions on Solana</title>
-  <meta name="description" content="Bet on the virality of social media content across YouTube, TikTok, Twitter, Instagram, and Facebook using SOL, USDC, EURC tokens on Solana blockchain." />
+  <title>Viral8 - The Future of Social Media Predictions on {computedValues.networkName}</title>
+  <meta name="description" content="Bet on the virality of social media content across YouTube, TikTok, Twitter, Instagram, and Facebook using {computedValues.tokens?.map(t => t.symbol).join(', ')} tokens on {computedValues.networkName} blockchain." />
 </svelte:head>
 
 <div class="min-h-screen bg-black text-white overflow-hidden">
@@ -96,7 +153,7 @@
         </h1>
         
         <p class="text-xl md:text-2xl text-gray-300 text-balance max-w-3xl mx-auto">
-          The Future of Social Media Predictions on Solana
+          The Future of Social Media Predictions on {computedValues.networkName}
         </p>
         
         <p class="text-lg text-gray-400 text-pretty max-w-2xl mx-auto">
@@ -106,22 +163,18 @@
         
         <!-- Token badges with icons -->
         <div class="flex flex-wrap justify-center gap-4 mt-8">
-          <div class="flex items-center gap-2 bg-gray-800/50 px-4 py-2 rounded-lg border border-green-500/30">
-            <img src="/icons8-solana-64(1).png" alt="Solana" class="h-6 w-6" />
-            <span class="text-green-400 font-semibold">SOL</span>
-          </div>
-          <div class="flex items-center gap-2 bg-gray-800/50 px-4 py-2 rounded-lg border border-blue-500/30">
-            <img src="/icons8-dollar-50.png" alt="USDC" class="h-6 w-6" />
-            <span class="text-blue-400 font-semibold">USDC</span>
-          </div>
-          <div class="flex items-center gap-2 bg-gray-800/50 px-4 py-2 rounded-lg border border-purple-500/30">
-            <img src="/icons8-euro-50.png" alt="EURC" class="h-6 w-6" />
-            <span class="text-purple-400 font-semibold">EURC</span>
-          </div>
-          <div class="flex items-center gap-2 bg-gray-800/50 px-4 py-2 rounded-lg border border-green-500/30">
-            <Coins class="h-6 w-6 text-green-400" />
-            <span class="text-green-400 font-semibold">VR8</span>
-          </div>
+          {#if computedValues?.tokens}
+            {#each computedValues.tokens as token}
+              <div class="flex items-center gap-2 bg-gray-800/50 px-4 py-2 rounded-lg border border-green-500/30">
+                {#if getTokenIcon(token)}
+                  <img src={getTokenIcon(token)} alt={token.symbol} class="h-6 w-6" />
+                {:else}
+                  <Coins class="h-6 w-6 {token.color}" />
+                {/if}
+                <span class="{token.color} font-semibold">{token.symbol}</span>
+              </div>
+            {/each}
+          {/if}
         </div>
         
         <!-- CTA Buttons -->
@@ -140,7 +193,7 @@
   </section>
 
   <!-- Supported Platforms Section -->
-  <section class="py-20 bg-gradient-to-b from-black to-gray-900">
+  <section id="platforms" class="py-20 bg-gradient-to-b from-black to-gray-900">
     <div class="container mx-auto px-4">
       <div class="text-center mb-16">
         <h2 class="text-4xl md:text-5xl font-bold mb-6 text-balance">
@@ -165,7 +218,7 @@
   </section>
 
   <!-- Features Section -->
-  <section class="py-20 bg-gray-900">
+  <section id="features" class="py-20 bg-gray-900">
     <div class="container mx-auto px-4">
       <div class="text-center mb-16">
         <h2 class="text-4xl md:text-5xl font-bold mb-6 text-balance">
@@ -183,7 +236,7 @@
           </CardHeader>
           <CardContent>
             <p class="text-gray-400 text-center">
-              Leverage Solana's high-speed, low-cost transactions for instant betting and payouts
+              Leverage {computedValues.networkName}'s high-speed, low-cost transactions for instant betting and payouts
             </p>
           </CardContent>
         </Card>
@@ -220,14 +273,14 @@
   </section>
 
   <!-- Deployed Contract Section -->
-  <section class="py-20 bg-black">
+  <section id="contract" class="py-20 bg-black">
     <div class="container mx-auto px-4">
       <div class="text-center mb-16">
         <h2 class="text-4xl md:text-5xl font-bold mb-6 text-balance">
           Deployed <span class="text-green-400">Contract</span>
         </h2>
         <p class="text-xl text-gray-400 max-w-2xl mx-auto text-pretty">
-          Our smart contract is live on Solana mainnet, ensuring transparency and security
+          Our smart contract is live on {computedValues.networkName} {networkStore.network?.networkType}, ensuring transparency and security
         </p>
       </div>
       
@@ -236,26 +289,26 @@
           <CardContent class="space-y-6">
             <div class="text-center">
               <h3 class="text-2xl font-bold text-white mb-4">Contract Address</h3>
-              <div class="contract-address text-green-400 flex items-center justify-between">
-                <span class="flex-1">{contractAddress}</span>
+              <div class="flex items-center justify-between rounded-lg border border-green-500/30 bg-gray-800/50 p-3">
+                <span class="font-mono text-lg text-green-400 truncate">{computedValues.contractAddress}</span>
                 <Button 
                   variant="ghost" 
-                  size="sm" 
-                  onclick={() => copyToClipboard(contractAddress)}
-                  class="ml-2 text-green-400 hover:text-green-300"
+                  size="icon" 
+                  onclick={() => copyToClipboard(computedValues.contractAddress)}
+                  class="text-green-400 hover:text-green-300"
                 >
-                  <Copy class="h-4 w-4" />
+                  <Copy class="h-5 w-5" />
                 </Button>
               </div>
               <div class="mt-4 flex justify-center">
-                <img src="/icons8-solana-64(1).png" alt="Solana" class="h-8 w-8 opacity-70" />
+                <img src="/icons8-solana-64(1).png" alt={networkStore.network?.name} class="h-8 w-8 opacity-70" />
               </div>
             </div>
             
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="outline" class="border-green-500/50 text-green-400 hover:bg-green-500/10">
+              <Button variant="outline" class="border-green-500/50 text-green-400 hover:bg-green-500/10" on:click={() => window.open(computedValues.explorerUrl, '_blank')}>
                 <ExternalLink class="mr-2 h-4 w-4" />
-                View on Solana Explorer
+                View on {computedValues.networkName} Explorer
               </Button>
               <Button variant="outline" class="border-green-500/50 text-green-400 hover:bg-green-500/10">
                 <ExternalLink class="mr-2 h-4 w-4" />
@@ -269,14 +322,14 @@
   </section>
 
   <!-- VR8 Token Section -->
-  <section class="py-20 bg-gradient-to-b from-gray-900 to-black">
+  <section id="vr8-token" class="py-20 bg-gradient-to-b from-gray-900 to-black">
     <div class="container mx-auto px-4">
       <div class="text-center mb-16">
         <h2 class="text-4xl md:text-5xl font-bold mb-6 text-balance">
           <span class="text-green-400">VR8</span> Token
         </h2>
         <p class="text-xl text-gray-400 max-w-2xl mx-auto text-pretty">
-          The native utility token powering the Viral8 ecosystem
+          The native utility token powering the Viral8 ecosystem on {networkStore.network?.name}
         </p>
       </div>
       
@@ -290,7 +343,7 @@
               <h3 class="text-3xl font-bold text-white mb-4">Coming Soon</h3>
               <p class="text-lg text-gray-400 text-pretty">
                 VR8 will be the primary token for staking, governance, and earning rewards 
-                for accurate virality predictions on the Viral8 platform.
+                for accurate virality predictions on the Viral8 platform on {computedValues.networkName}.
               </p>
             </div>
             
@@ -307,7 +360,7 @@
                   <Users class="h-8 w-8 text-green-400" />
                 </div>
                 <h4 class="text-lg font-semibold text-white mb-2">Governance</h4>
-                <p class="text-sm text-gray-400">Vote on platform decisions and improvements</p>
+                <p class_="text-sm text-gray-400">Vote on platform decisions and improvements</p>
               </div>
               <div class="text-center">
                 <div class="flex justify-center mb-3">
@@ -323,6 +376,9 @@
     </div>
   </section>
 
+    <!-- Test Viral8 Section -->
+  <TestViral8 />
+  
   <!-- CTA Section -->
   <section class="py-20 bg-black relative">
     <div class="absolute w-7 h-7 top-10 right-10 opacity-20 text-green-500 rising-icon">

@@ -3,9 +3,9 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { isAuthenticated, getUserInfo, logout } from '$lib/services/auth.js';
-  import { Button } from '$lib/components/ui/button/index.js';
-  import { Card } from '$lib/components/ui/card/index.js';
-  import { Separator } from '$lib/components/ui/separator/index.js';
+  import { Button } from '$lib/components/ui/button';
+  import { Card } from '$lib/components/ui/card';
+  import { Separator } from '$lib/components/ui/separator';
   import { 
     LayoutDashboard, 
     FileText, 

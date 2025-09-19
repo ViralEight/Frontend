@@ -2,10 +2,10 @@
   import { browser } from '$app/environment';
   import { API_BASE_URL } from '$lib/config/api.js';
   import { getAuthToken } from '$lib/services/auth.js';
-  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card/index.js';
-  import { Button } from '$lib/components/ui/button/index.js';
-  import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '$lib/components/ui/select/index.js';
-  import { Separator } from '$lib/components/ui/separator/index.js';
+  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
+  import { Button } from '$lib/components/ui/button';
+  import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '$lib/components/ui/select';
+  import { Separator } from '$lib/components/ui/separator';
   import { 
     TrendingUp, 
     Users, 
